@@ -2,31 +2,44 @@
 
 public class AimGun : MonoBehaviour
 {
-    [Header("Referencias")]
-    public SpriteRenderer handSR;
-    public SpriteRenderer gunSR;
+    [Header("Refs")]
+    public Transform gun;                    // tu objeto "Gun" (hijo de Hand)
+    public SpriteRenderer gunSprite;         // SpriteRenderer del arma (nerf32px)
+    public SpriteRenderer handSprite;        // SpriteRenderer de la mano (mano2)
+    public Camera cam;                       // si está vacío, usa Camera.main
 
-    void Update()
+    void Awake()
     {
-        // mouse → mundo
-        Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        mouseWorld.z = 0f;
+        if (!cam) cam = Camera.main;
+    }
 
-        // Dirección y ángulo
-        Vector2 dir = (mouseWorld - transform.position).normalized;
+    void LateUpdate()
+    {
+        // 1) Ángulo al mouse desde el pivote (Hand)
+        Vector3 mouseWorld = cam.ScreenToWorldPoint(Input.mousePosition);
+        mouseWorld.z = 0f;
+        Vector2 dir = (mouseWorld - transform.position);
+        if (dir.sqrMagnitude < 0.000001f) return;
+
         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
 
-        // Rotar el pivote del brazo
-        transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+        // 2) Rotamos el PIVOTE (Hand) 360°
+        transform.rotation = Quaternion.Euler(0f, 0f, angle);
 
-        // Si apunta a la izquierda, espejamos sprites en Y para que no queden "al revés"
-        bool lookingLeft = angle > 90f || angle < -90f;
-        if (handSR) handSR.flipY = lookingLeft;
-        if (gunSR) gunSR.flipY = lookingLeft;
+        // 3) ¿Mirando a la izquierda?
+        bool lookingLeft = (angle > 90f || angle < -90f);
 
-        // Opcional: si el flipY te corre la mano/arma, ajustá su posición local derecha/izquierda:
-        // var lp = gunSR.transform.localPosition;
-        // lp.y = lookingLeft ? -Mathf.Abs(lp.y) : Mathf.Abs(lp.y);
-        // gunSR.transform.localPosition = lp;
+        // 4) El arma SÍ se voltea para no quedar boca abajo
+        if (gunSprite) gunSprite.flipY = lookingLeft;
+
+        // 5) La mano NUNCA se voltea (pero sigue rotando con el pivote)
+        if (handSprite)
+        {
+            handSprite.flipY = false;                 // <- clave
+            handSprite.transform.localRotation = Quaternion.identity;
+        }
+
+        // 6) Asegurar que el "Gun" no acumule rotaciones locales
+        if (gun) gun.localRotation = Quaternion.identity;
     }
 }

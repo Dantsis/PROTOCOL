@@ -1,17 +1,35 @@
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody2D))]
 public class Bullet : MonoBehaviour
 {
-    public float speed = 10f;
-    public Vector2 direction;
+    [Tooltip("Velocidad en unidades/seg")]
+    public float speed = 12f;
 
-    void Update()
+    [Tooltip("Segundos antes de autodestruirse")]
+    public float life = 2f;
+
+    private Rigidbody2D rb;
+
+    void Awake()
     {
-        transform.Translate(direction * speed * Time.deltaTime, Space.World);
+        rb = GetComponent<Rigidbody2D>();
+        // Seguridad: sin gravedad
+        rb.gravityScale = 0f;
+        // No cuelgues el Y 🙂
+        rb.constraints = RigidbodyConstraints2D.None;
     }
 
-    private void OnBecameInvisible()
+    // Llamalo al instanciar
+    public void Launch(Vector2 dir)
     {
-        Destroy(gameObject);
+        rb.velocity = dir.normalized * speed;
+        Invoke(nameof(Die), life);
     }
+
+    void Die() => Destroy(gameObject);
+
+    // IMPORTANTE: no muevas por Translate en Update; solo velocity.
 }
+
+
