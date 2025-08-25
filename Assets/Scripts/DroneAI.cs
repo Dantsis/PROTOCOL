@@ -25,11 +25,24 @@ public class DroneAI : MonoBehaviour
     public LayerMask losMask;            // walls / obstáculos para línea de visión
     public bool requireLineOfSight = true;
 
+    [Header("Geometría del cañón")]
+    [Tooltip("Radio desde el centro del dron hasta el sprite del cañón")]
+    public float hubRadius = 0.35f;
+    [Tooltip("Extra desde el cañón hasta la punta del FirePoint")]
+    public float barrelOffset = 0.22f;
+
+    [Header("Giro del cañón")]
+    public bool limitArc = false;           // limitar giro a un arco frontal
+    [Range(0f, 180f)] public float arcHalfAngle = 110f; // ± grados respecto a +X local
+    public bool smoothAim = true;           // suavizar giro
+    public float aimLerpSpeed = 18f;        // rapidez de suavizado
+
     // Internos
     Rigidbody2D rb;
     int wpIndex = 0;
     float nextShotTime = 0f;
     Vector2 desiredVel = Vector2.zero;
+    float currentAimAngle; // para suavizado
 
     void Awake()
     {
@@ -39,6 +52,9 @@ public class DroneAI : MonoBehaviour
             GameObject p = GameObject.FindGameObjectWithTag("Player");
             if (p) player = p.transform;
         }
+
+        // Inicializar ángulo de cañón con la rotación actual
+        if (gunPivot) currentAimAngle = gunPivot.eulerAngles.z;
     }
 
     void Update()
@@ -105,17 +121,39 @@ public class DroneAI : MonoBehaviour
     {
         if (!gunPivot) return;
 
+        // Dirección y ángulo objetivo en grados
         Vector2 aimDir = (worldPos - gunPivot.position);
-        float angle = Mathf.Atan2(aimDir.y, aimDir.x) * Mathf.Rad2Deg;
+        float targetAngle = Mathf.Atan2(aimDir.y, aimDir.x) * Mathf.Rad2Deg;
 
-        // rota el pivote (Z)
-        gunPivot.rotation = Quaternion.Euler(0f, 0f, angle);
+        // Limitar a arco frontal opcional
+        if (limitArc)
+        {
+            // Normalizamos a [-180,180] y clampeamos
+            float a = Mathf.Repeat(targetAngle + 180f, 360f) - 180f;
+            a = Mathf.Clamp(a, -arcHalfAngle, arcHalfAngle);
+            targetAngle = a;
+        }
 
-        // flip visual del sprite del cañón para que no quede boca abajo
+        // Suavizado o rotación directa
+        if (smoothAim)
+            currentAimAngle = Mathf.LerpAngle(currentAimAngle, targetAngle, 1f - Mathf.Exp(-aimLerpSpeed * Time.deltaTime));
+        else
+            currentAimAngle = targetAngle;
+
+        // Aplicar rotación al pivote
+        gunPivot.rotation = Quaternion.Euler(0f, 0f, currentAimAngle);
+
+        // Enforce radio fijo (posición local sobre X)
+        if (cannonSprite != null)
+            cannonSprite.localPosition = new Vector3(hubRadius, 0f, 0f);
+
+        if (firePoint != null)
+            firePoint.localPosition = new Vector3(hubRadius + barrelOffset, 0f, 0f);
+
+        // Flip visual para que el sprite no quede boca abajo
         if (cannonSprite != null)
         {
-            bool left = (angle > 90f || angle < -90f);
-            // flip por Y = 180° sin tocar escala
+            bool left = (currentAimAngle > 90f || currentAimAngle < -90f);
             cannonSprite.localRotation = Quaternion.Euler(0f, left ? 180f : 0f, 0f);
         }
     }
@@ -136,18 +174,18 @@ public class DroneAI : MonoBehaviour
         var b = go.GetComponent<Bullet>();
         if (b != null)
         {
-            b.team = Bullet.Team.Enemy; // ← clave
+            b.team = Bullet.Team.Enemy;
             b.damage = bulletDamage;
             b.speed = bulletSpeed;
             b.Launch(dir);
             return;
         }
 
-        // B) Solo Rigidbody2D (fallback)
+        // B) Solo Rigidbody2D (fallback) - usar velocity (no linearVelocity)
         var rb2 = go.GetComponent<Rigidbody2D>();
         if (rb2 != null)
         {
-            rb2.linearVelocity = dir * bulletSpeed;  // (fix) velocity, no linearVelocity
+            rb2.linearVelocity = dir * bulletSpeed;
             Destroy(go, 3f);
         }
     }
@@ -173,4 +211,5 @@ public class DroneAI : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, fireRange);
     }
 }
+
 
