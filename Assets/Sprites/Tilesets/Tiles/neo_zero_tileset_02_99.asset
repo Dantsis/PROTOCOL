@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 13312, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: neo_zero_tileset_02_99
   m_EditorClassIdentifier: 
-  m_Sprite: {fileID: 195816839, guid: e0d3fbd9e7a8cd34fa4d9904bfd257d7, type: 3}
+  m_Sprite: {fileID: -1079526515, guid: e0d3fbd9e7a8cd34fa4d9904bfd257d7, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Transform:
     e00: 1
