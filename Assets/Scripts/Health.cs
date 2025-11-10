@@ -9,6 +9,10 @@ public class Health : MonoBehaviour
     [Header("Tipo")]
     public bool isPlayer = false;
 
+    // NUEVO: invulnerabilidad temporal (para spawn, etc.)
+    [HideInInspector] public bool invulnerable = false;
+    public void SetInvulnerable(bool v) => invulnerable = v;
+
     void Awake()
     {
         currentHealth = maxHealth;
@@ -19,6 +23,7 @@ public class Health : MonoBehaviour
     public void TakeDamage(int amount, Vector2 hitPoint, Vector2 hitNormal)
     {
         if (!IsAlive) return;
+        if (invulnerable) return;   // <<--- BLOQUEA DAÑO CUANDO ESTÁ INVULNERABLE
 
         currentHealth = Mathf.Max(0, currentHealth - amount);
 
@@ -30,11 +35,7 @@ public class Health : MonoBehaviour
 
     void Die()
     {
-        // Por ahora: desaparecer el objeto cuando muere
         Destroy(gameObject);
-
-        // Más adelante, para el Player podés cambiar esto
-        // por respawn, perder una vida, etc.
     }
 
     public void Heal(int amount)
