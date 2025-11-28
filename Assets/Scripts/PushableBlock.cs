@@ -1,92 +1,107 @@
-using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
-[RequireComponent(typeof(Collider2D))]
 public class PushableBlock : MonoBehaviour
 {
-    [Header("Movimiento en grilla")]
-    public float tileSize = 1f;
-    public float moveTime = 0.15f;
+    [Header("Agarre")]
+    [Tooltip("Offset relativo al jugador cuando está agarrada la caja.")]
+    public Vector2 holdOffset = new Vector2(0f, -0.25f);
 
-    [Header("Colisi�n")]
-    [Tooltip("Capas que bloquean a la caja (paredes, otras cajas, props s�lidos...)")]
-    public LayerMask blockingLayers;
+    [Header("UI (opcional)")]
+    [Tooltip("Canvas / icono 'Presione E' asociado a esta caja.")]
+    public GameObject interactPrompt;
 
-    bool isMoving = false;
+    // --- Estado interno ---
+    Transform player;      // referencia al jugador cerca
+    bool playerInRange;    // está dentro del trigger
+    bool isGrabbed;        // actualmente agarrada
+
     Rigidbody2D rb;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+
+        // Queremos un rigidbody "quieto" que no se mueva solo
         rb.gravityScale = 0f;
+        rb.bodyType = RigidbodyType2D.Kinematic;   // no hay fuerzas, ni deslizamiento
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+
+        if (interactPrompt != null)
+            interactPrompt.SetActive(false);
     }
 
-    void OnCollisionStay2D(Collision2D collision)
+    void Update()
     {
-        if (isMoving) return;
+        // Agarrar / soltar con E
+        if (playerInRange && Input.GetKeyDown(KeyCode.E))
+        {
+            ToggleGrab();
+        }
 
-        // Solo reaccionamos si la otra cosa es el Player
-        if (!collision.gameObject.CompareTag("Player")) return;
+        // Si está agarrada, pegada al jugador con offset
+        if (isGrabbed && player != null)
+        {
+            Vector3 target = player.position + (Vector3)holdOffset;
+            transform.position = target;
+        }
+    }
 
-        float x = Input.GetAxisRaw("Horizontal");
-        float y = Input.GetAxisRaw("Vertical");
+    void ToggleGrab()
+    {
+        if (player == null) return;
 
-        if (Mathf.Abs(x) < 0.1f && Mathf.Abs(y) < 0.1f)
-            return;
+        isGrabbed = !isGrabbed;
 
-        // Elegimos un eje dominante: o horizontal o vertical (no diagonal)
-        Vector2 dir;
-        if (Mathf.Abs(x) > Mathf.Abs(y))
-            dir = new Vector2(Mathf.Sign(x), 0f);
+        if (isGrabbed)
+        {
+            // La caja pasa a ser hija del jugador (más prolijo)
+            transform.SetParent(player);
+            transform.localPosition = holdOffset;
+
+            if (interactPrompt != null)
+                interactPrompt.SetActive(false);
+        }
         else
-            dir = new Vector2(0f, Mathf.Sign(y));
-
-        Vector2 targetPos = rb.position + dir * tileSize;
-
-        // �Hay algo bloqueando en esa casilla?
-        Collider2D hit = Physics2D.OverlapBox(targetPos, GetBoxSize(), 0f, blockingLayers);
-        if (hit == null)
         {
-            StartCoroutine(MoveTo(targetPos));
+            // La caja se queda donde está y deja de seguir
+            transform.SetParent(null);
+
+            if (playerInRange && interactPrompt != null)
+                interactPrompt.SetActive(true);
         }
     }
 
-    Vector2 GetBoxSize()
+    // Zona de interacción: usá un collider grande con IsTrigger = true
+    void OnTriggerEnter2D(Collider2D other)
     {
-        var col = GetComponent<Collider2D>();
-        if (col is BoxCollider2D box)
-            return box.size * 0.9f; // un poquito m�s peque�o para tolerancia
-        if (col is CircleCollider2D circle)
-            return Vector2.one * circle.radius * 2f * 0.9f;
-        return Vector2.one * 0.9f;
-    }
-
-    IEnumerator MoveTo(Vector2 targetPos)
-    {
-        isMoving = true;
-
-        Vector2 start = rb.position;
-        float t = 0f;
-
-        while (t < moveTime)
+        var hb = other.GetComponent<Hurtbox>() ?? other.GetComponentInParent<Hurtbox>();
+        if (hb && hb.health && hb.health.isPlayer)
         {
-            t += Time.deltaTime;
-            float k = Mathf.Clamp01(t / moveTime);
-            rb.MovePosition(Vector2.Lerp(start, targetPos, k));
-            yield return null;
+            player = hb.transform;
+            playerInRange = true;
+
+            if (!isGrabbed && interactPrompt != null)
+                interactPrompt.SetActive(true);
         }
-
-        rb.MovePosition(targetPos);
-        isMoving = false;
     }
 
-#if UNITY_EDITOR
-    void OnDrawGizmosSelected()
+    void OnTriggerExit2D(Collider2D other)
     {
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawWireCube(transform.position, GetBoxSize());
+        var hb = other.GetComponent<Hurtbox>() ?? other.GetComponentInParent<Hurtbox>();
+        if (hb && hb.health && hb.health.isPlayer)
+        {
+            playerInRange = false;
+
+            if (!isGrabbed && interactPrompt != null)
+                interactPrompt.SetActive(false);
+
+            // Si se aleja mientras la caja está agarrada, la soltamos
+            if (isGrabbed)
+            {
+                isGrabbed = false;
+                transform.SetParent(null);
+            }
+        }
     }
-#endif
 }
