@@ -18,12 +18,6 @@ public class RoomWaveSpawner : MonoBehaviour
     public int maxTotal = 8;
     public float respawnDelay = 1f;
 
-    [Header("Sprites de aparición")]
-    public Sprite flashSprite;
-    public Sprite normalSprite;
-    public int blinkCount = 4;
-    public float blinkInterval = 0.08f;
-
     [Header("Random dentro del collider (si no hay spawnPoints)")]
     public float roomMargin = 0.5f;
     public float spawnCheckRadius = 0.3f;
@@ -121,17 +115,17 @@ public class RoomWaveSpawner : MonoBehaviour
                 b.enabled = false;
         }
 
-        // --- Nuevo parpadeo entre sprites ---
-        var sr = go.GetComponentInChildren<SpriteRenderer>();
-        if (sr)
+        // --- Parpadeo de spawn manejado por el propio dron ---
+        var spawnFlash = go.GetComponent<DroneSpawnFlash>() ?? go.GetComponentInChildren<DroneSpawnFlash>();
+        if (spawnFlash != null)
         {
-            for (int i = 0; i < blinkCount; i++)
-            {
-                sr.sprite = flashSprite;
-                yield return new WaitForSeconds(blinkInterval);
-                sr.sprite = normalSprite;
-                yield return new WaitForSeconds(blinkInterval);
-            }
+            // Esperamos a que termine su animación de spawn
+            yield return StartCoroutine(spawnFlash.PlaySpawnFlashRoutine());
+        }
+        else
+        {
+            // Si por alguna razón no hay script, igual esperamos un toque
+            yield return new WaitForSeconds(0.1f);
         }
 
         // Reactivar dron
@@ -185,6 +179,8 @@ public class RoomWaveSpawner : MonoBehaviour
         foreach (var d in doors) if (d) { d.Unlock(); d.Open(); }
     }
 }
+
+
 
 
 

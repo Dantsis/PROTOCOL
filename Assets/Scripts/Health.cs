@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class Health : MonoBehaviour
 {
@@ -9,13 +9,19 @@ public class Health : MonoBehaviour
     [Header("Tipo")]
     public bool isPlayer = false;
 
-    // NUEVO: invulnerabilidad temporal (para spawn, etc.)
+    // Invulnerabilidad temporal
     [HideInInspector] public bool invulnerable = false;
     public void SetInvulnerable(bool v) => invulnerable = v;
+
+    // REFERENCIA AL FLASH
+    private DamageFlash damageFlash;
 
     void Awake()
     {
         currentHealth = maxHealth;
+
+        // Si este objeto tiene DamageFlash, lo tomamos
+        damageFlash = GetComponent<DamageFlash>();
     }
 
     public bool IsAlive => currentHealth > 0;
@@ -23,9 +29,15 @@ public class Health : MonoBehaviour
     public void TakeDamage(int amount, Vector2 hitPoint, Vector2 hitNormal)
     {
         if (!IsAlive) return;
-        if (invulnerable) return;   // <<--- BLOQUEA DAÑO CUANDO ESTÁ INVULNERABLE
+        if (invulnerable) return;
 
         currentHealth = Mathf.Max(0, currentHealth - amount);
+
+        // SOLO el Player hace el efecto de daÃ±o
+        if (isPlayer && damageFlash != null)
+        {
+            damageFlash.PlayDamageFlash();
+        }
 
         if (currentHealth <= 0)
         {
@@ -43,4 +55,6 @@ public class Health : MonoBehaviour
         currentHealth = Mathf.Min(maxHealth, currentHealth + amount);
     }
 }
+
+
 
