@@ -7,18 +7,22 @@ public class PlayerShoot : MonoBehaviour
     public enum FireMode { SemiAuto, AutoOnHold, Both }
 
     [Header("Refs")]
-    public Transform firePoint;           // punta del cañón
+    public Transform firePoint;           // punta de la mano
     public GameObject bulletPrefab;       // prefab con Bullet.cs (recomendado)
     public Camera cam;                    // si null → Camera.main
 
     [Header("Modo de disparo")]
     public FireMode fireMode = FireMode.Both;
 
-    [Header("Ajustes")]
+    [Header("Ajustes de disparo")]
     [Tooltip("Balas por segundo. Aplica al click y al mantener. Si = 0 → solo 1 por click (sin auto).")]
     public float fireRate = 8f;
     public float bulletSpeed = 12f;
     public int bulletDamage = 1;
+
+    [Header("Munición")]
+    public int maxAmmo = 20;
+    public int currentAmmo = 10;
 
     // Internos
     private float nextShotTime = 0f;
@@ -29,12 +33,16 @@ public class PlayerShoot : MonoBehaviour
         if (!cam) cam = Camera.main;
         if (fireRate < 0f) fireRate = 0f;
 
+        currentAmmo = Mathf.Clamp(currentAmmo, 0, maxAmmo);
+
         // Aviso si hay dos PlayerShoot en el mismo GO (frecuente causa de doble tiro)
         var dups = GetComponents<PlayerShoot>();
         if (dups.Length > 1)
         {
             Debug.LogWarning($"[PlayerShoot] Hay {dups.Length} PlayerShoot en '{name}'. Dejá solo uno.");
         }
+
+        NotifyAmmoToHand();
     }
 
     void Update()
@@ -70,6 +78,13 @@ public class PlayerShoot : MonoBehaviour
     {
         if (!firePoint || !bulletPrefab || cam == null) return false;
 
+        // Sin munición → no dispara
+        if (currentAmmo <= 0)
+        {
+            // Podrías poner un "clic vacío" o anim algo acá si querés
+            return false;
+        }
+
         // Guard: NO permitir 2 disparos en el mismo frame (aunque otro script también llame)
         if (lastShotFrame == Time.frameCount) return false;
         lastShotFrame = Time.frameCount;
@@ -89,6 +104,8 @@ public class PlayerShoot : MonoBehaviour
             return false;
         }
 
+        bool shot = false;
+
         // Preferimos Bullet.cs (team/daño/velocidad)
         var b = go.GetComponent<Bullet>();
         if (b != null)
@@ -97,26 +114,57 @@ public class PlayerShoot : MonoBehaviour
             b.damage = bulletDamage;
             b.speed = bulletSpeed;
             b.Launch(dir);
-            return true;
+            shot = true;
         }
-
-        // Fallback: mover con Rigidbody2D
-        var rb = go.GetComponent<Rigidbody2D>();
-        if (rb != null)
+        else
         {
-            rb.gravityScale = 0f;
-            rb.linearVelocity = dir * bulletSpeed;
-            Destroy(go, 3f);
-            return true;
+            // Fallback: mover con Rigidbody2D
+            var rb = go.GetComponent<Rigidbody2D>();
+            if (rb != null)
+            {
+                rb.gravityScale = 0f;
+                rb.linearVelocity = dir * bulletSpeed;
+                Destroy(go, 3f);
+                shot = true;
+            }
         }
 
-        // Si no hay Bullet ni RB2D, abortar para evitar "bala flotando"
-        Debug.LogError("[PlayerShoot] El bulletPrefab no tiene Bullet ni Rigidbody2D. Deshabilitando script.");
-        enabled = false;
-        Destroy(go);
-        return false;
+        if (!shot)
+        {
+            Debug.LogError("[PlayerShoot] El bulletPrefab no tiene Bullet ni Rigidbody2D. Deshabilitando script.");
+            enabled = false;
+            Destroy(go);
+            return false;
+        }
+
+        // ✅ Disparo exitoso → consumir munición y avisar a la mano
+        currentAmmo = Mathf.Max(0, currentAmmo - 1);
+        NotifyAmmoToHand(playThrowAnimation: true);
+
+        return true;
+    }
+
+    void NotifyAmmoToHand(bool playThrowAnimation = false)
+    {
+        var hand = GetComponentInChildren<AimHand>();
+        if (hand == null) return;
+
+        hand.SetHasAmmo(currentAmmo > 0);
+
+        if (playThrowAnimation)
+            hand.PlayThrowAnimation();
+    }
+
+    /// <summary>
+    /// Llamado por los pickups de bolas de papel.
+    /// </summary>
+    public void AddAmmo(int amount)
+    {
+        if (amount <= 0) return;
+
+        currentAmmo = Mathf.Clamp(currentAmmo + amount, 0, maxAmmo);
+        NotifyAmmoToHand();
     }
 }
-
 
 
