@@ -24,18 +24,32 @@ public class RoomWaveSpawner : MonoBehaviour
     public LayerMask blockLayers;
     public int maxAttemptsPerSpawn = 25;
 
+    [Header("Requisito Eddie")]
+    public bool requireEddieToOpenDoors = true;
+
     private bool encounterStarted = false;
     private bool roomCleared = false;
     private int totalSpawned = 0;
     private int pendingSpawns = 0;
     private readonly List<GameObject> alive = new List<GameObject>();
     private Collider2D roomTrigger;
+    private bool waitingForEddie = false;
 
     void Awake()
     {
         roomTrigger = GetComponent<Collider2D>();
         if (roomTrigger && !roomTrigger.isTrigger)
             roomTrigger.isTrigger = true;
+    }
+
+    void OnEnable()
+    {
+        NPCDialogue.OnEddieTalked += OnEddieTalked;
+    }
+
+    void OnDisable()
+    {
+        NPCDialogue.OnEddieTalked -= OnEddieTalked;
     }
 
     void OnTriggerEnter2D(Collider2D other)
@@ -115,20 +129,12 @@ public class RoomWaveSpawner : MonoBehaviour
                 b.enabled = false;
         }
 
-        // --- Parpadeo de spawn manejado por el propio dron ---
         var spawnFlash = go.GetComponent<DroneSpawnFlash>() ?? go.GetComponentInChildren<DroneSpawnFlash>();
         if (spawnFlash != null)
-        {
-            // Esperamos a que termine su animación de spawn
             yield return StartCoroutine(spawnFlash.PlaySpawnFlashRoutine());
-        }
         else
-        {
-            // Si por alguna razón no hay script, igual esperamos un toque
             yield return new WaitForSeconds(0.1f);
-        }
 
-        // Reactivar dron
         if (rb) rb.simulated = true;
         if (hp) hp.SetInvulnerable(false);
 
@@ -150,8 +156,8 @@ public class RoomWaveSpawner : MonoBehaviour
         for (int i = 0; i < maxAttemptsPerSpawn; i++)
         {
             Vector2 candidate = new Vector2(
-                UnityEngine.Random.Range(b.min.x + roomMargin, b.max.x - roomMargin),
-                UnityEngine.Random.Range(b.min.y + roomMargin, b.max.y - roomMargin)
+                Random.Range(b.min.x + roomMargin, b.max.x - roomMargin),
+                Random.Range(b.min.y + roomMargin, b.max.y - roomMargin)
             );
 
             if (!Physics2D.OverlapCircle(candidate, spawnCheckRadius, blockLayers))
@@ -176,11 +182,46 @@ public class RoomWaveSpawner : MonoBehaviour
     {
         roomCleared = true;
         encounterStarted = false;
-        foreach (var d in doors) if (d) { d.Unlock(); d.Open(); }
+
+        if (requireEddieToOpenDoors)
+        {
+            if (NPCDialogue.HasTalkedToEddie)
+            {
+                OpenDoors();
+            }
+            else
+            {
+                waitingForEddie = true;
+            }
+        }
+        else
+        {
+            OpenDoors();
+        }
+    }
+
+    void OpenDoors()
+    {
+        foreach (var d in doors)
+        {
+            if (d != null)
+            {
+                d.Unlock();
+                d.Open();
+            }
+        }
+    }
+
+    void OnEddieTalked()
+    {
+        if (!requireEddieToOpenDoors) return;
+        if (!roomCleared) return;
+
+        if (waitingForEddie)
+        {
+            waitingForEddie = false;
+            OpenDoors();
+        }
     }
 }
-
-
-
-
 

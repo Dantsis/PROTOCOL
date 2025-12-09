@@ -1,4 +1,4 @@
-using System.Collections;
+Ôªøusing System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,43 +8,32 @@ public class MusicalSequencePuzzle : MonoBehaviour
     [Header("Puertas de la sala")]
     public List<Door> doors = new List<Door>();
 
-    [Header("Pads de SECUENCIA (los que solo muestran el patrÛn)")]
-    [Tooltip("4 pads que se prenden en orden para mostrar la secuencia")]
+    [Header("Pads de SECUENCIA (los que solo muestran el patr√≥n)")]
     public SpriteRenderer[] sequencePads = new SpriteRenderer[4];
 
     [Header("Pads de ENTRADA (donde se para el jugador)")]
-    [Tooltip("4 pads con MusicPadInput (el jugador pisa para copiar la secuencia)")]
     public MusicPadInput[] inputPads = new MusicPadInput[4];
 
     [Header("Indicadores de progreso (3 secuencias)")]
-    [Tooltip("Sprites en el piso que muestran si cada secuencia est· bien/mal")]
     public SpriteRenderer[] progressTiles = new SpriteRenderer[3];
 
     [Header("Sprites de pads")]
-    public Sprite padIdleSprite;   // gris o apagado
-    public Sprite padActiveSprite; // rojo (cuando se enciende)
+    public Sprite padIdleSprite;
+    public Sprite padActiveSprite;
 
-    [Header("Sprites de indicadores de progreso")]
-    public Sprite progressNeutralSprite; // estado neutro
-    public Sprite progressOkSprite;      // verde
-    public Sprite progressFailSprite;    // rojo
+    [Header("Sprites de indicadores")]
+    public Sprite progressNeutralSprite;
+    public Sprite progressOkSprite;
+    public Sprite progressFailSprite;
 
-    [Header("Secuencias (usar valores 0,1,2,3)")]
-    [Tooltip("Primera secuencia de 4 pasos (0..3 para cada pad)")]
+    [Header("Secuencias")]
     public int[] sequence1 = new int[4];
-    [Tooltip("Segunda secuencia")]
     public int[] sequence2 = new int[4];
-    [Tooltip("Tercera secuencia")]
     public int[] sequence3 = new int[4];
 
     [Header("Tiempos")]
-    [Tooltip("Tiempo que cada pad de la secuencia queda prendido")]
     public float showStepTime = 0.4f;
-
-    [Tooltip("Tiempo entre pasos de la secuencia")]
     public float showStepDelay = 0.15f;
-
-    [Tooltip("Tiempo antes de volver a mostrar la secuencia si el jugador falla")]
     public float retryDelay = 0.7f;
 
     // --- Estado interno ---
@@ -54,7 +43,10 @@ public class MusicalSequencePuzzle : MonoBehaviour
     List<int> currentInput = new List<int>();
 
     bool puzzleStarted = false;
-    bool puzzleSolved = false;
+
+    // IMPORTANT: lo usa Eddie para chequear si la sala est√° completa
+    public bool puzzleSolved = false;
+
     bool showingSequence = false;
     bool acceptingInput = false;
 
@@ -72,7 +64,6 @@ public class MusicalSequencePuzzle : MonoBehaviour
 
         sequences = new List<int[]> { sequence1, sequence2, sequence3 };
 
-        // Asignar este puzzle a los pads de entrada
         for (int i = 0; i < inputPads.Length; i++)
         {
             if (inputPads[i] != null)
@@ -82,32 +73,22 @@ public class MusicalSequencePuzzle : MonoBehaviour
             }
         }
 
-        // Estado inicial de sprites
         ResetAllVisuals();
     }
 
     void ResetAllVisuals()
     {
-        // Pads de secuencia
         foreach (var sr in sequencePads)
-        {
             if (sr != null && padIdleSprite != null)
                 sr.sprite = padIdleSprite;
-        }
 
-        // Pads de entrada
         foreach (var pad in inputPads)
-        {
             if (pad != null)
                 pad.SetSprite(padIdleSprite);
-        }
 
-        // Indicadores de progreso
         for (int i = 0; i < progressTiles.Length; i++)
-        {
             if (progressTiles[i] != null && progressNeutralSprite != null)
                 progressTiles[i].sprite = progressNeutralSprite;
-        }
     }
 
     void OnTriggerEnter2D(Collider2D other)
@@ -116,9 +97,7 @@ public class MusicalSequencePuzzle : MonoBehaviour
 
         var hb = other.GetComponent<Hurtbox>() ?? other.GetComponentInParent<Hurtbox>();
         if (hb && hb.health && hb.health.isPlayer)
-        {
             StartPuzzle();
-        }
     }
 
     void StartPuzzle()
@@ -128,12 +107,8 @@ public class MusicalSequencePuzzle : MonoBehaviour
         currentInput.Clear();
         ResetAllVisuals();
 
-        // Cerrar + bloquear puertas
         foreach (var d in doors)
-        {
-            if (d != null)
-                d.Lock();
-        }
+            if (d != null) d.Lock();
 
         StartCoroutine(ShowCurrentSequence());
     }
@@ -144,63 +119,59 @@ public class MusicalSequencePuzzle : MonoBehaviour
         showingSequence = true;
         currentInput.Clear();
 
-        // Reset visual de pads de entrada
         foreach (var pad in inputPads)
-        {
             if (pad != null)
                 pad.SetSprite(padIdleSprite);
-        }
-
-        // Seguridad
-        if (currentSequenceIndex < 0 || currentSequenceIndex >= sequences.Count)
-            yield break;
-
-        int[] seq = sequences[currentSequenceIndex];
 
         yield return new WaitForSeconds(0.3f);
+
+        // seguridad
+        if (currentSequenceIndex < 0 || currentSequenceIndex >= sequences.Count)
+        {
+            showingSequence = false;
+            yield break;
+        }
+
+        int[] seq = sequences[currentSequenceIndex];
 
         for (int i = 0; i < seq.Length; i++)
         {
             int padId = Mathf.Clamp(seq[i], 0, sequencePads.Length - 1);
 
-            // Todos idle
+            // todos idle
             for (int j = 0; j < sequencePads.Length; j++)
             {
                 if (sequencePads[j] != null && padIdleSprite != null)
                     sequencePads[j].sprite = padIdleSprite;
             }
 
-            // Encendemos el pad correspondiente
+            // encendemos
             if (sequencePads[padId] != null && padActiveSprite != null)
                 sequencePads[padId].sprite = padActiveSprite;
 
             yield return new WaitForSeconds(showStepTime);
         }
 
-        // Volvemos a estado idle en los pads de secuencia
+        // volver a idle
         for (int j = 0; j < sequencePads.Length; j++)
-        {
             if (sequencePads[j] != null && padIdleSprite != null)
                 sequencePads[j].sprite = padIdleSprite;
-        }
 
         showingSequence = false;
         acceptingInput = true;
     }
 
-    // Llamado por los MusicPadInput cuando el jugador pisa un pad
+    // llamado por MusicPadInput
     public void OnPadPressed(int padIndex, MusicPadInput pad)
     {
         if (!puzzleStarted || puzzleSolved || !acceptingInput) return;
         if (padIndex < 0 || padIndex >= 4) return;
 
-        // Feedback visual en el pad de entrada
         if (pad != null)
             pad.Flash(padActiveSprite, padIdleSprite, 0.15f);
 
         currentInput.Add(padIndex);
 
-        // Si ya metiÛ los 4 pasos, evaluamos
         if (currentInput.Count >= 4)
         {
             acceptingInput = false;
@@ -222,27 +193,19 @@ public class MusicalSequencePuzzle : MonoBehaviour
             }
         }
 
-        // Indicador de esta secuencia (0,1,2)
         if (currentSequenceIndex < progressTiles.Length)
         {
             var sr = progressTiles[currentSequenceIndex];
             if (sr != null)
-            {
-                if (correct && progressOkSprite != null)
-                    sr.sprite = progressOkSprite;
-                else if (!correct && progressFailSprite != null)
-                    sr.sprite = progressFailSprite;
-            }
+                sr.sprite = correct ? progressOkSprite : progressFailSprite;
         }
 
         if (correct)
         {
-            // Guardamos este tile en verde para siempre
             yield return new WaitForSeconds(0.25f);
 
             currentSequenceIndex++;
 
-            // øCompletÛ las 3 secuencias?
             if (currentSequenceIndex >= sequences.Count)
             {
                 SolvePuzzle();
@@ -250,14 +213,12 @@ public class MusicalSequencePuzzle : MonoBehaviour
             }
             else
             {
-                // Pasar a la siguiente secuencia
                 yield return new WaitForSeconds(0.35f);
                 StartCoroutine(ShowCurrentSequence());
             }
         }
         else
         {
-            // Secuencia incorrecta: esperar, volver a neutral y repetir misma secuencia
             yield return new WaitForSeconds(retryDelay);
 
             if (currentSequenceIndex < progressTiles.Length)
@@ -276,18 +237,8 @@ public class MusicalSequencePuzzle : MonoBehaviour
     {
         if (puzzleSolved) return;
         puzzleSolved = true;
-        acceptingInput = false;
 
-        // Abrir + desbloquear puertas
-        foreach (var d in doors)
-        {
-            if (d != null)
-            {
-                d.Unlock();
-                d.Open();
-            }
-        }
-
+        // ya no abrimos puertas aqu√≠: Eddie decidir√° cu√°ndo abrirlas (seg√∫n tu dise√±o)
         if (roomTrigger)
             roomTrigger.enabled = false;
     }

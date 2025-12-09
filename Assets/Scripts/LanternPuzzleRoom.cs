@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,48 +8,45 @@ public class LanternPuzzleRoom : MonoBehaviour
     [Header("Puertas de la sala")]
     public List<Door> doors = new List<Door>();
 
+    [Header("Requisito Eddie")]
+    [Tooltip("Si estÃ¡ activo, las puertas solo se abren si el puzzle fue resuelto Y se hablÃ³ con Eddie DESPUÃ‰S del puzzle.")]
+    public bool requireEddieToOpenDoors = true;
+
+    bool roomCleared = false;
+    bool waitingForEddie = false;
+    bool eddieHasBeenTalkedAfterPuzzle = false;
+
     [Header("Faroles")]
     public GameObject lanternPrefab;
     public Sprite lanternOffSprite;
     public Sprite lanternOnSprite;
 
-    [Tooltip("Cuántos faroles deben estar encendidos simultáneamente")]
+    [Tooltip("CuÃ¡ntos faroles deben estar encendidos simultÃ¡neamente")]
     public int lanternCount = 3;
 
     [Header("Tiempo del puzzle")]
-    [Tooltip("Duración (segundos) antes de que los faroles desaparezcan si fallás")]
     public float lanternLifetime = 2.5f;
-
-    [Tooltip("Tiempo entre intentos")]
     public float respawnDelay = 1.0f;
 
-    [Header("Zona de spawn (si se deja vacío usa el collider de la sala)")]
+    [Header("Zona de spawn")]
     public Collider2D roomArea;
     public float roomMargin = 0.5f;
 
-    [Header("Prefab de bala del jugador (arrastrar aquí)")]
+    [Header("Prefab de bala del jugador")]
     public GameObject playerBulletPrefab;
 
     [Header("Efecto al completar puzzle")]
-    [Tooltip("Cuánto dura el titileo de los faroles al resolver el puzzle")]
     public float solvedBlinkDuration = 1.5f;
-
-    [Tooltip("Cada cuántos segundos cambian de sprite al titilar")]
     public float solvedBlinkInterval = 0.08f;
 
-    // Estado interno
-    private Collider2D roomTrigger;
-    private readonly List<LanternTarget> currentLanterns = new List<LanternTarget>();
-    private bool puzzleStarted = false;
-    private bool puzzleSolved = false;
-    private Coroutine puzzleRoutine;
+    Collider2D roomTrigger;
+    readonly List<LanternTarget> currentLanterns = new List<LanternTarget>();
+    bool puzzleStarted = false;
 
-    void Reset()
-    {
-        roomTrigger = GetComponent<Collider2D>();
-        if (roomTrigger) roomTrigger.isTrigger = true;
-        roomArea = roomTrigger;
-    }
+    // pÃºblico para que Eddie / otros sistemas puedan consultar
+    public bool puzzleSolved = false;
+
+    Coroutine puzzleRoutine;
 
     void Awake()
     {
@@ -60,27 +57,31 @@ public class LanternPuzzleRoom : MonoBehaviour
         if (!roomArea) roomArea = roomTrigger;
     }
 
+    void OnEnable()
+    {
+        NPCDialogue.OnEddieTalked += OnEddieTalked;
+    }
+
+    void OnDisable()
+    {
+        NPCDialogue.OnEddieTalked -= OnEddieTalked;
+    }
+
     void OnTriggerEnter2D(Collider2D other)
     {
         if (puzzleStarted || puzzleSolved) return;
 
         var hb = other.GetComponent<Hurtbox>() ?? other.GetComponentInParent<Hurtbox>();
         if (hb && hb.health && hb.health.isPlayer)
-        {
             StartPuzzle();
-        }
     }
 
     void StartPuzzle()
     {
         puzzleStarted = true;
 
-        // Cerrar + bloquear todas las puertas
         foreach (var d in doors)
-        {
-            if (d != null)
-                d.Lock();
-        }
+            if (d != null) d.Lock();
 
         puzzleRoutine = StartCoroutine(PuzzleLoop());
     }
@@ -111,11 +112,9 @@ public class LanternPuzzleRoom : MonoBehaviour
                 SolvePuzzle();
                 yield break;
             }
-            else
-            {
-                ClearLanterns();
-                yield return new WaitForSeconds(respawnDelay);
-            }
+
+            ClearLanterns();
+            yield return new WaitForSeconds(respawnDelay);
         }
     }
 
@@ -166,10 +165,8 @@ public class LanternPuzzleRoom : MonoBehaviour
         if (currentLanterns.Count == 0) return false;
 
         foreach (var lt in currentLanterns)
-        {
-            if (lt == null || !lt.IsLit)
-                return false;
-        }
+            if (lt == null || !lt.IsLit) return false;
+
         return true;
     }
 
@@ -177,6 +174,7 @@ public class LanternPuzzleRoom : MonoBehaviour
     {
         if (puzzleSolved) return;
         puzzleSolved = true;
+        roomCleared = true;
 
         if (puzzleRoutine != null)
             StopCoroutine(puzzleRoutine);
@@ -186,7 +184,6 @@ public class LanternPuzzleRoom : MonoBehaviour
 
     IEnumerator SolvedSequence()
     {
-        // Aseguramos que todos estén encendidos y empezamos el titileo
         foreach (var lt in currentLanterns)
         {
             if (lt != null)
@@ -196,13 +193,32 @@ public class LanternPuzzleRoom : MonoBehaviour
             }
         }
 
-        // Esperamos mientras titilan
         yield return new WaitForSeconds(solvedBlinkDuration);
 
-        // Limpiamos faroles
         ClearLanterns();
 
-        // Abrimos + desbloqueamos puertas
+        if (requireEddieToOpenDoors)
+        {
+            if (eddieHasBeenTalkedAfterPuzzle)
+            {
+                OpenDoors();
+            }
+            else
+            {
+                waitingForEddie = true;
+            }
+        }
+        else
+        {
+            OpenDoors();
+        }
+
+        if (roomTrigger)
+            roomTrigger.enabled = false;
+    }
+
+    void OpenDoors()
+    {
         foreach (var d in doors)
         {
             if (d != null)
@@ -211,12 +227,9 @@ public class LanternPuzzleRoom : MonoBehaviour
                 d.Open();
             }
         }
-
-        // Desactivamos el trigger de la sala para que no se repita
-        if (roomTrigger)
-            roomTrigger.enabled = false;
     }
 
+    // llamado por LanternTarget cuando un farol cambia a lit
     public void NotifyLanternLitChanged()
     {
         if (puzzleStarted && !puzzleSolved && AllLanternsLit())
@@ -225,20 +238,18 @@ public class LanternPuzzleRoom : MonoBehaviour
         }
     }
 
-#if UNITY_EDITOR
-    void OnDrawGizmosSelected()
+    void OnEddieTalked()
     {
-        if (!roomArea) roomArea = GetComponent<Collider2D>();
-        if (!roomArea) return;
+        // Si Eddie habla antes del puzzle no permite abrir puertas (evita bypass)
+        if (!requireEddieToOpenDoors) return;
+        if (!roomCleared) return;
 
-        var b = roomArea.bounds;
-        Vector3 size = b.size - new Vector3(roomMargin * 2f, roomMargin * 2f, 0f);
+        eddieHasBeenTalkedAfterPuzzle = true;
 
-        Gizmos.color = new Color(1f, 1f, 0f, 0.15f);
-        Gizmos.DrawCube(b.center, size);
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireCube(b.center, size);
+        if (waitingForEddie)
+        {
+            waitingForEddie = false;
+            OpenDoors();
+        }
     }
-#endif
 }
-

@@ -6,6 +6,8 @@ using UnityEngine;
 public class LanternTarget : MonoBehaviour
 {
     [HideInInspector] public LanternPuzzleRoom owner;
+
+    // Mantengo este campo porque LanternPuzzleRoom lo asigna
     [HideInInspector] public GameObject playerBulletPrefab;
 
     private SpriteRenderer sr;
@@ -13,6 +15,8 @@ public class LanternTarget : MonoBehaviour
     private Sprite onSprite;
 
     public bool IsLit { get; private set; }
+
+    bool playerInRange = false;
 
     void Awake()
     {
@@ -34,8 +38,21 @@ public class LanternTarget : MonoBehaviour
         IsLit = lit;
         UpdateVisual();
 
-        if (IsLit && owner != null)
-            owner.NotifyLanternLitChanged();
+        // YA NO USAMOS owner.NotifyLanternLitChanged(),
+        // porque LanternPuzzleRoom ya no lo necesita.
+    }
+
+
+    void Update()
+    {
+        if (!playerInRange) return;
+        if (IsLit) return;
+
+        // Activación por tecla E
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            SetLit(true);
+        }
     }
 
     void UpdateVisual()
@@ -46,17 +63,34 @@ public class LanternTarget : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (IsLit || owner == null || playerBulletPrefab == null)
-            return;
-
-        // Comprobación simple por nombre del prefab (sirve si las balas son instancias de ese prefab)
-        if (other.gameObject.name.Contains(playerBulletPrefab.name))
+        // Detectar jugador proximity
+        var hb = other.GetComponent<Hurtbox>() ?? other.GetComponentInParent<Hurtbox>();
+        if (hb != null && hb.health != null && hb.health.isPlayer)
         {
-            SetLit(true);
+            playerInRange = true;
+            return;
+        }
+
+        // Si no es jugador, tal vez es una bala del jugador.
+        if (!IsLit && playerBulletPrefab != null)
+        {
+            // Comparación simple por nombre del prefab instanciado
+            if (other.gameObject.name.Contains(playerBulletPrefab.name))
+            {
+                SetLit(true);
+            }
         }
     }
 
-    // --- Titileo al resolver el puzzle ---
+    void OnTriggerExit2D(Collider2D other)
+    {
+        var hb = other.GetComponent<Hurtbox>() ?? other.GetComponentInParent<Hurtbox>();
+        if (hb != null && hb.health != null && hb.health.isPlayer)
+        {
+            playerInRange = false;
+        }
+    }
+
     public void PlaySolvedBlink(float duration, float interval)
     {
         if (!gameObject.activeInHierarchy) return;
@@ -79,9 +113,7 @@ public class LanternTarget : MonoBehaviour
             t += interval;
         }
 
-        // Al final lo dejamos encendido
         IsLit = true;
         UpdateVisual();
     }
 }
-

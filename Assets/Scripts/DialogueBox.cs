@@ -60,9 +60,10 @@ public class DialogueBox : MonoBehaviour
     {
         if (!gameObject.activeSelf) return;
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        // Usa la misma tecla que los NPCs
+        if (Input.GetKeyDown(KeyCode.E))
         {
-            // Si todavía se está tipeando, completar
+            // Si todavía se está tipeando, completar texto
             if (typing != null && dialogueText.text != lines[index])
             {
                 StopCoroutine(typing);
@@ -70,7 +71,7 @@ public class DialogueBox : MonoBehaviour
             }
             else
             {
-                // Siguiente línea o cerrar
+                // Pasar a la siguiente línea
                 if (index < lines.Length - 1)
                 {
                     index++;
@@ -83,6 +84,7 @@ public class DialogueBox : MonoBehaviour
             }
         }
     }
+
 
     public void Close()
     {
