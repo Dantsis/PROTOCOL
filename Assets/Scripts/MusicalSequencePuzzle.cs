@@ -44,7 +44,7 @@ public class MusicalSequencePuzzle : MonoBehaviour
 
     bool puzzleStarted = false;
 
-    // IMPORTANT: lo usa Eddie para chequear si la sala está completa
+    // IMPORTANTE: lo usa Eddie
     public bool puzzleSolved = false;
 
     bool showingSequence = false;
@@ -125,7 +125,6 @@ public class MusicalSequencePuzzle : MonoBehaviour
 
         yield return new WaitForSeconds(0.3f);
 
-        // seguridad
         if (currentSequenceIndex < 0 || currentSequenceIndex >= sequences.Count)
         {
             showingSequence = false;
@@ -138,21 +137,18 @@ public class MusicalSequencePuzzle : MonoBehaviour
         {
             int padId = Mathf.Clamp(seq[i], 0, sequencePads.Length - 1);
 
-            // todos idle
             for (int j = 0; j < sequencePads.Length; j++)
             {
                 if (sequencePads[j] != null && padIdleSprite != null)
                     sequencePads[j].sprite = padIdleSprite;
             }
 
-            // encendemos
             if (sequencePads[padId] != null && padActiveSprite != null)
                 sequencePads[padId].sprite = padActiveSprite;
 
             yield return new WaitForSeconds(showStepTime);
         }
 
-        // volver a idle
         for (int j = 0; j < sequencePads.Length; j++)
             if (sequencePads[j] != null && padIdleSprite != null)
                 sequencePads[j].sprite = padIdleSprite;
@@ -206,9 +202,10 @@ public class MusicalSequencePuzzle : MonoBehaviour
 
             currentSequenceIndex++;
 
+            // --- CAMBIO IMPORTANTE ---
             if (currentSequenceIndex >= sequences.Count)
             {
-                SolvePuzzle();
+                SolvePuzzle();   // ← Ahora esto marca puzzleSolved al toque
                 yield break;
             }
             else
@@ -236,10 +233,12 @@ public class MusicalSequencePuzzle : MonoBehaviour
     void SolvePuzzle()
     {
         if (puzzleSolved) return;
-        puzzleSolved = true;
 
-        // ya no abrimos puertas aquí: Eddie decidirá cuándo abrirlas (según tu diseño)
+        puzzleSolved = true; // ← AHORA SE MARCA COMO RESUELTO
+
         if (roomTrigger)
             roomTrigger.enabled = false;
+
+        // Ya no abre puertas aquí (Eddie lo maneja)
     }
 }
