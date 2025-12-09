@@ -2,15 +2,15 @@ using UnityEngine;
 
 public class DroneLaser : MonoBehaviour
 {
-    // -----------------------------------------------------
+    // ============================
     // ESTADOS
-    // -----------------------------------------------------
+    // ============================
     public enum State { Idle, Telegraph, Firing, Cooldown }
     State state = State.Idle;
 
-    // -----------------------------------------------------
+    // ============================
     // REFERENCIAS
-    // -----------------------------------------------------
+    // ============================
     [Header("Refs")]
     public Transform gunPivot;
     public Transform firePoint;
@@ -19,19 +19,25 @@ public class DroneLaser : MonoBehaviour
     public Transform player;
 
     [Header("Detección")]
-    public float detectionRadius = 7f;
+    public float detectionRadius = 10f;
     public LayerMask losMask;
 
     [Header("Ataque Láser")]
-    public float telegraphTime = 2f;         // delay ANTES de disparar
-    public float firingTime = 2f;            // duración del rayo
-    public float cooldownTime = 2f;          // después de pegar
-    public float fireRange = 6f;
+    public float telegraphTime = 1.5f;
+    public float firingTime = 0.3f;
+    public float cooldownTime = 1.5f;
+    public float fireRange = 50f;
 
-    public int dps = 12;                     // daño por segundo del rayo
-    public LayerMask hitMask;                // paredes / jugador / objetos con collider
+    public int damagePerBeam = 2;      // solo 1 hit por disparo
+    public LayerMask hitMask;
+
+    bool damageDoneThisCycle = false;
 
     float stateTimer = 0f;
+
+    [Header("Movimiento")]
+    public float moveSpeed = 3f;
+    public float stopDistance = 9f;
 
     void Awake()
     {
@@ -54,10 +60,12 @@ public class DroneLaser : MonoBehaviour
 
         switch (state)
         {
-            // ----------------------------------------------------------
-            //  IDLE
-            // ----------------------------------------------------------
+            // ============================
+            // IDLE
+            // ============================
             case State.Idle:
+                MoveIfNeeded();
+
                 if (seesPlayer)
                 {
                     state = State.Telegraph;
@@ -66,10 +74,11 @@ public class DroneLaser : MonoBehaviour
                 }
                 break;
 
-            // ----------------------------------------------------------
-            //  TELEGRAPH (rayo tenue)
-            // ----------------------------------------------------------
+            // ============================
+            // TELEGRAPH
+            // ============================
             case State.Telegraph:
+                MoveIfNeeded();
                 AimGunAt(player.position);
                 UpdateTelegraphBeam();
 
@@ -84,14 +93,17 @@ public class DroneLaser : MonoBehaviour
                 {
                     telegraphRenderer.enabled = false;
                     laserRenderer.enabled = true;
+
+                    damageDoneThisCycle = false; // reseteamos daño por rayo
+
                     state = State.Firing;
                     stateTimer = firingTime;
                 }
                 break;
 
-            // ----------------------------------------------------------
-            //  FIRING (láser fuerte, daño continuo)
-            // ----------------------------------------------------------
+            // ============================
+            // FIRING (rayo sostenido)
+            // ============================
             case State.Firing:
                 AimGunAt(player.position);
 
@@ -99,25 +111,18 @@ public class DroneLaser : MonoBehaviour
 
                 stateTimer -= Time.deltaTime;
 
-                // Si pega al jugador → cortar ataque + cooldown
-                if (hitPlayer)
+                if (!seesPlayer || stateTimer <= 0)
                 {
                     laserRenderer.enabled = false;
                     state = State.Cooldown;
                     stateTimer = cooldownTime;
                 }
-                // Si pierde al jugador → apagarse
-                else if (!seesPlayer || stateTimer <= 0)
-                {
-                    laserRenderer.enabled = false;
-                    state = State.Idle;
-                }
 
                 break;
 
-            // ----------------------------------------------------------
-            //  COOLDOWN
-            // ----------------------------------------------------------
+            // ============================
+            // COOLDOWN
+            // ============================
             case State.Cooldown:
                 stateTimer -= Time.deltaTime;
                 if (stateTimer <= 0)
@@ -128,10 +133,23 @@ public class DroneLaser : MonoBehaviour
         }
     }
 
-    // ==========================================================
-    //   BEAMS (TELEGRAPH + FIRING)
-    // ==========================================================
+    // ============================
+    // MOVIMIENTO DEL DRON
+    // ============================
+    void MoveIfNeeded()
+    {
+        float dist = Vector2.Distance(transform.position, player.position);
 
+        if (dist > stopDistance)
+        {
+            Vector2 dir = (player.position - transform.position).normalized;
+            transform.position += (Vector3)(dir * moveSpeed * Time.deltaTime);
+        }
+    }
+
+    // ============================
+    // TELEGRAPH
+    // ============================
     void UpdateTelegraphBeam()
     {
         Vector3 origin = firePoint.position;
@@ -140,13 +158,12 @@ public class DroneLaser : MonoBehaviour
         RaycastHit2D hit = Physics2D.Raycast(origin, dir, fireRange, hitMask);
 
         telegraphRenderer.SetPosition(0, origin);
-
-        if (hit.collider != null)
-            telegraphRenderer.SetPosition(1, hit.point);
-        else
-            telegraphRenderer.SetPosition(1, origin + dir * fireRange);
+        telegraphRenderer.SetPosition(1, hit ? hit.point : origin + dir * fireRange);
     }
 
+    // ============================
+    // FIRING + DAÑO
+    // ============================
     bool UpdateLaserBeamAndDamage()
     {
         Vector3 origin = firePoint.position;
@@ -155,44 +172,33 @@ public class DroneLaser : MonoBehaviour
         RaycastHit2D hit = Physics2D.Raycast(origin, dir, fireRange, hitMask);
 
         laserRenderer.SetPosition(0, origin);
+        laserRenderer.SetPosition(1, hit ? hit.point : origin + dir * fireRange);
 
         if (hit.collider != null)
         {
-            // fin del rayo
-            laserRenderer.SetPosition(1, hit.point);
-
-            // --------------------------------------------
-            // HIT AL JUGADOR
-            // --------------------------------------------
             if (hit.collider.CompareTag("Player"))
             {
-                Health hp = hit.collider.GetComponent<Health>();
-                if (hp != null)
+                if (!damageDoneThisCycle)
                 {
-                    int dmg = Mathf.RoundToInt(dps * Time.deltaTime);
+                    Health hp = hit.collider.GetComponentInParent<Health>();
+                    if (hp != null)
+                    {
+                        hp.TakeDamage(damagePerBeam, hit.point, -dir);
+                    }
 
-                    hp.TakeDamage(
-                        dmg,
-                        hit.point,          // punto exacto del impacto
-                        -dir                // normal hacia atrás
-                    );
+                    damageDoneThisCycle = true;
                 }
 
-                return true; // esto corta el ataque
+                return true;
             }
-        }
-        else
-        {
-            laserRenderer.SetPosition(1, origin + dir * fireRange);
         }
 
         return false;
     }
 
-    // ==========================================================
-    //   AIM
-    // ==========================================================
-
+    // ============================
+    // AIM
+    // ============================
     public void AimGunAt(Vector3 worldPos)
     {
         Vector2 dir = worldPos - gunPivot.position;
@@ -200,10 +206,9 @@ public class DroneLaser : MonoBehaviour
         gunPivot.rotation = Quaternion.Euler(0, 0, angle);
     }
 
-    // ==========================================================
-    //   LINE OF SIGHT
-    // ==========================================================
-
+    // ============================
+    // LINE OF SIGHT
+    // ============================
     bool HasLineOfSight()
     {
         Vector2 origin = gunPivot.position;
@@ -212,6 +217,6 @@ public class DroneLaser : MonoBehaviour
 
         RaycastHit2D hit = Physics2D.Raycast(origin, dir, dist, losMask);
 
-        return hit.collider == null; // nada bloquea
+        return hit.collider == null;
     }
 }

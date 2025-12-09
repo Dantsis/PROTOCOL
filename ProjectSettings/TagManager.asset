@@ -18,7 +18,7 @@ TagManager:
   - Hand
   - Hazard
   - HurtBox
-  - 
+  - Laser
   - 
   - 
   - 
@@ -62,6 +62,9 @@ TagManager:
     locked: 0
   - name: PropsFront
     uniqueID: 2389376613
+    locked: 0
+  - name: Laser
+    uniqueID: 3883195057
     locked: 0
   - name: Overlay
     uniqueID: 2096268081
