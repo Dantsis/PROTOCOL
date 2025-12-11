@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class DroneMechAI : MonoBehaviour
@@ -6,21 +6,21 @@ public class DroneMechAI : MonoBehaviour
     [Header("Refs")]
     public Transform[] waypoints;
     public Transform player;            // si no se asigna, se busca por tag "Player"
-    public Camera cam;                  // opcional, por si luego us�s algo visual
+    public Camera cam;                  // opcional, por si luego usás algo visual
 
     [Header("Movimiento")]
     public float patrolSpeed = 2.5f;
     public float chaseSpeed = 3.5f;
     public float waypointTolerance = 0.1f;
 
-    [Header("Detecci�n")]
+    [Header("Detección")]
     public float detectionRadius = 7f;
-    public LayerMask losMask;           // walls / obstaculos para l�nea de visi�n
+    public LayerMask losMask;           // walls / obstaculos para línea de visión
     public bool requireLineOfSight = true;
 
-    [Header("Da�o por contacto")]
+    [Header("Daño por contacto")]
     public int contactDamage = 1;
-    public float hitCooldown = 0.5f;    // tiempo m�nimo entre golpes
+    public float hitCooldown = 0.5f;    // tiempo mínimo entre golpes
 
     // Internos
     Rigidbody2D rb;
@@ -99,7 +99,7 @@ public class DroneMechAI : MonoBehaviour
         return hit.collider == null;
     }
 
-    // --- Da�o por contacto ---
+    // --- Daño por contacto ---
 
     void TryHitPlayer(Hurtbox hb)
     {
