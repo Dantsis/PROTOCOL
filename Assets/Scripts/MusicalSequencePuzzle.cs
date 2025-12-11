@@ -5,7 +5,10 @@ using UnityEngine;
 [RequireComponent(typeof(Collider2D))]
 public class MusicalSequencePuzzle : MonoBehaviour
 {
-    [Header("Puertas de la sala")]
+    [Header("CONEXIÓN A ROOM DOOR CONTROLLER")]
+    public RoomDoorController doorController;
+
+    [Header("Puertas de la sala (del puzzle)")]
     public List<Door> doors = new List<Door>();
 
     [Header("Pads de SECUENCIA (los que solo muestran el patrón)")]
@@ -44,7 +47,7 @@ public class MusicalSequencePuzzle : MonoBehaviour
 
     bool puzzleStarted = false;
 
-    // IMPORTANTE: lo usa Eddie
+    // IMPORTANTE: Eddie usa esto
     public bool puzzleSolved = false;
 
     bool showingSequence = false;
@@ -202,10 +205,9 @@ public class MusicalSequencePuzzle : MonoBehaviour
 
             currentSequenceIndex++;
 
-            // --- CAMBIO IMPORTANTE ---
             if (currentSequenceIndex >= sequences.Count)
             {
-                SolvePuzzle();   // ← Ahora esto marca puzzleSolved al toque
+                SolvePuzzle();
                 yield break;
             }
             else
@@ -234,11 +236,13 @@ public class MusicalSequencePuzzle : MonoBehaviour
     {
         if (puzzleSolved) return;
 
-        puzzleSolved = true; // ← AHORA SE MARCA COMO RESUELTO
+        puzzleSolved = true;
 
         if (roomTrigger)
             roomTrigger.enabled = false;
 
-        // Ya no abre puertas aquí (Eddie lo maneja)
+        // 🔵 AHORA SÍ INFORMAMOS AL ROOM DOOR CONTROLLER
+        if (doorController != null)
+            doorController.MarkPuzzleCleared();
     }
 }

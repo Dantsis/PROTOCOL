@@ -5,11 +5,12 @@ using UnityEngine;
 [RequireComponent(typeof(Collider2D))]
 public class LanternPuzzleRoom : MonoBehaviour
 {
+    public RoomDoorController doorController;
+
     [Header("Puertas de la sala")]
     public List<Door> doors = new List<Door>();
 
     [Header("Requisito Eddie")]
-    [Tooltip("Si está activo, las puertas solo se abren si el puzzle fue resuelto Y se habló con Eddie DESPUÉS del puzzle.")]
     public bool requireEddieToOpenDoors = true;
 
     bool roomCleared = false;
@@ -20,8 +21,6 @@ public class LanternPuzzleRoom : MonoBehaviour
     public GameObject lanternPrefab;
     public Sprite lanternOffSprite;
     public Sprite lanternOnSprite;
-
-    [Tooltip("Cuántos faroles deben estar encendidos simultáneamente")]
     public int lanternCount = 3;
 
     [Header("Tiempo del puzzle")]
@@ -32,18 +31,16 @@ public class LanternPuzzleRoom : MonoBehaviour
     public Collider2D roomArea;
     public float roomMargin = 0.5f;
 
-    [Header("Prefab de bala del jugador")]
+    [Header("Prefab bala jugador")]
     public GameObject playerBulletPrefab;
 
-    [Header("Efecto al completar puzzle")]
+    [Header("Efecto completado")]
     public float solvedBlinkDuration = 1.5f;
     public float solvedBlinkInterval = 0.08f;
 
     Collider2D roomTrigger;
     readonly List<LanternTarget> currentLanterns = new List<LanternTarget>();
     bool puzzleStarted = false;
-
-    // público para que Eddie / otros sistemas puedan consultar
     public bool puzzleSolved = false;
 
     Coroutine puzzleRoutine;
@@ -201,7 +198,7 @@ public class LanternPuzzleRoom : MonoBehaviour
         {
             if (eddieHasBeenTalkedAfterPuzzle)
             {
-                OpenDoors();
+                TriggerDoorController();
             }
             else
             {
@@ -210,26 +207,19 @@ public class LanternPuzzleRoom : MonoBehaviour
         }
         else
         {
-            OpenDoors();
+            TriggerDoorController();
         }
 
         if (roomTrigger)
             roomTrigger.enabled = false;
     }
 
-    void OpenDoors()
+    void TriggerDoorController()
     {
-        foreach (var d in doors)
-        {
-            if (d != null)
-            {
-                d.Unlock();
-                d.Open();
-            }
-        }
+        if (doorController != null)
+            doorController.MarkPuzzleCleared();
     }
 
-    // llamado por LanternTarget cuando un farol cambia a lit
     public void NotifyLanternLitChanged()
     {
         if (puzzleStarted && !puzzleSolved && AllLanternsLit())
@@ -240,7 +230,6 @@ public class LanternPuzzleRoom : MonoBehaviour
 
     void OnEddieTalked()
     {
-        // Si Eddie habla antes del puzzle no permite abrir puertas (evita bypass)
         if (!requireEddieToOpenDoors) return;
         if (!roomCleared) return;
 
@@ -249,7 +238,7 @@ public class LanternPuzzleRoom : MonoBehaviour
         if (waitingForEddie)
         {
             waitingForEddie = false;
-            OpenDoors();
+            TriggerDoorController();
         }
     }
 }

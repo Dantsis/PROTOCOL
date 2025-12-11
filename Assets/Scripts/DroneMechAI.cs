@@ -85,7 +85,8 @@ public class DroneMechAI : MonoBehaviour
         SetDesiredVelocity(to.normalized * patrolSpeed);
     }
 
-    void SetDesiredVelocity(Vector2 v) => desiredVel = v;
+    public void SetDesiredVelocity(Vector2 v) => desiredVel = v;
+
 
     bool HasLineOfSight()
     {

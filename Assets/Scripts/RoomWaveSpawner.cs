@@ -5,56 +5,39 @@ using System.Collections.Generic;
 [RequireComponent(typeof(Collider2D))]
 public class RoomWaveSpawner : MonoBehaviour
 {
-    [Header("Puertas de la sala")]
-    public List<Door> doors = new List<Door>();
 
-    [Header("Spawn points (opcionales)")]
+    public RoomDoorController doorController;
+
     public List<Transform> spawnPoints = new List<Transform>();
 
-    [Header("Enemigos")]
     public GameObject dronePrefab;
     public int initialCount = 2;
     public int waveSize = 3;
     public int maxTotal = 8;
     public float respawnDelay = 1f;
 
-    [Header("Random dentro del collider (si no hay spawnPoints)")]
     public float roomMargin = 0.5f;
     public float spawnCheckRadius = 0.3f;
     public LayerMask blockLayers;
     public int maxAttemptsPerSpawn = 25;
 
-    [Header("Requisito Eddie")]
-    public bool requireEddieToOpenDoors = true;
-
     private bool encounterStarted = false;
     private bool roomCleared = false;
     private int totalSpawned = 0;
     private int pendingSpawns = 0;
+
     private readonly List<GameObject> alive = new List<GameObject>();
     private Collider2D roomTrigger;
-    private bool waitingForEddie = false;
 
     void Awake()
     {
         roomTrigger = GetComponent<Collider2D>();
-        if (roomTrigger && !roomTrigger.isTrigger)
-            roomTrigger.isTrigger = true;
-    }
-
-    void OnEnable()
-    {
-        NPCDialogue.OnEddieTalked += OnEddieTalked;
-    }
-
-    void OnDisable()
-    {
-        NPCDialogue.OnEddieTalked -= OnEddieTalked;
+        if (roomTrigger && !roomTrigger.isTrigger) roomTrigger.isTrigger = true;
     }
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (roomCleared || encounterStarted) return;
+        if (encounterStarted || roomCleared) return;
 
         var hb = other.GetComponent<Hurtbox>() ?? other.GetComponentInParent<Hurtbox>();
         if (hb && hb.health && hb.health.isPlayer)
@@ -64,7 +47,6 @@ public class RoomWaveSpawner : MonoBehaviour
     void StartEncounter()
     {
         encounterStarted = true;
-        foreach (var d in doors) if (d) d.Lock();
 
         int toSpawn = Mathf.Min(initialCount, maxTotal - totalSpawned);
         StartCoroutine(SpawnWave(toSpawn));
@@ -116,33 +98,7 @@ public class RoomWaveSpawner : MonoBehaviour
         alive.Add(go);
         totalSpawned++;
 
-        var hp = go.GetComponent<Health>() ?? go.GetComponentInChildren<Health>();
-        if (hp) hp.SetInvulnerable(true);
-
-        var rb = go.GetComponent<Rigidbody2D>();
-        if (rb) rb.simulated = false;
-
-        var behaviours = go.GetComponentsInChildren<MonoBehaviour>();
-        foreach (var b in behaviours)
-        {
-            if (b != this && !(b is SpriteRenderer) && !(b is Health))
-                b.enabled = false;
-        }
-
-        var spawnFlash = go.GetComponent<DroneSpawnFlash>() ?? go.GetComponentInChildren<DroneSpawnFlash>();
-        if (spawnFlash != null)
-            yield return StartCoroutine(spawnFlash.PlaySpawnFlashRoutine());
-        else
-            yield return new WaitForSeconds(0.1f);
-
-        if (rb) rb.simulated = true;
-        if (hp) hp.SetInvulnerable(false);
-
-        foreach (var b in behaviours)
-        {
-            if (b != this && !(b is SpriteRenderer) && !(b is Health))
-                b.enabled = true;
-        }
+        yield return new WaitForSeconds(0.1f);
 
         pendingSpawns = Mathf.Max(0, pendingSpawns - 1);
     }
@@ -153,6 +109,7 @@ public class RoomWaveSpawner : MonoBehaviour
         if (!roomTrigger) return false;
 
         var b = roomTrigger.bounds;
+
         for (int i = 0; i < maxAttemptsPerSpawn; i++)
         {
             Vector2 candidate = new Vector2(
@@ -172,56 +129,17 @@ public class RoomWaveSpawner : MonoBehaviour
     void CleanupDead()
     {
         for (int i = alive.Count - 1; i >= 0; i--)
-        {
-            if (alive[i] == null)
-                alive.RemoveAt(i);
-        }
+            if (alive[i] == null) alive.RemoveAt(i);
     }
 
     void RoomCleared()
     {
         roomCleared = true;
-        encounterStarted = false;
 
-        if (requireEddieToOpenDoors)
-        {
-            if (NPCDialogue.HasTalkedToEddie)
-            {
-                OpenDoors();
-            }
-            else
-            {
-                waitingForEddie = true;
-            }
-        }
-        else
-        {
-            OpenDoors();
-        }
-    }
+        if (doorController != null)
+            doorController.MarkCombatCleared();
 
-    void OpenDoors()
-    {
-        foreach (var d in doors)
-        {
-            if (d != null)
-            {
-                d.Unlock();
-                d.Open();
-            }
-        }
-    }
-
-    void OnEddieTalked()
-    {
-        if (!requireEddieToOpenDoors) return;
-        if (!roomCleared) return;
-
-        if (waitingForEddie)
-        {
-            waitingForEddie = false;
-            OpenDoors();
-        }
+        if (roomTrigger)
+            roomTrigger.enabled = false;
     }
 }
-

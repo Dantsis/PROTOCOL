@@ -124,4 +124,10 @@ public class NPCDialogue : MonoBehaviour
                 interactPrompt.SetActive(false);
         }
     }
+    public RoomDoorController roomDoorController;
+
+    public void OnDialogueFinished()
+    {
+        roomDoorController.MarkNPCSpoke();
+    }
 }
