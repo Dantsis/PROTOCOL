@@ -75,5 +75,12 @@ public class Door : MonoBehaviour
             else if (!open && closedSprite) sr.sprite = closedSprite;
         }
     }
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+            Close();
+    }
+
+
 }
 
