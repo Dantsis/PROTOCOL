@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -137,9 +137,13 @@ public class RoomWaveSpawner : MonoBehaviour
         roomCleared = true;
 
         if (doorController != null)
+        {
             doorController.MarkCombatCleared();
+            doorController.levelCompleted = true;    // ← AGREGADO
+        }
 
         if (roomTrigger)
             roomTrigger.enabled = false;
     }
+
 }

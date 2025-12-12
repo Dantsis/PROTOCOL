@@ -241,8 +241,11 @@ public class MusicalSequencePuzzle : MonoBehaviour
         if (roomTrigger)
             roomTrigger.enabled = false;
 
-        // 🔵 AHORA SÍ INFORMAMOS AL ROOM DOOR CONTROLLER
         if (doorController != null)
+        {
             doorController.MarkPuzzleCleared();
+            doorController.levelCompleted = true;  // ← AGREGADO
+        }
     }
+
 }

@@ -883,6 +883,57 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   extraCheckSize: {x: 1.2, y: 1.2}
+--- !u!1 &126139856
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 126139858}
+  - component: {fileID: 126139857}
+  m_Layer: 0
+  m_Name: RoomDoorController_RoomX
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &126139857
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 126139856}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e00b8595fc07be4ba2dd49512626642, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  doors:
+  - {fileID: 447513798}
+  - {fileID: 7914238}
+  requireNPC: 1
+  requireRoomClear: 0
+  requireLevelCompleted: 0
+  levelCompleted: 0
+--- !u!4 &126139858
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 126139856}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -379.8, y: -10.1, z: 0.07620736}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &130232919
 GameObject:
   m_ObjectHideFlags: 0
@@ -1763,12 +1814,10 @@ MonoBehaviour:
   - "Los drones son\nm\xE1s avanzados"
   - "Trata de \nencontrar \nalgo que arrojar"
   interactKey: 101
-  doorsToOpen:
-  - {fileID: 1988956456}
-  - {fileID: 1392539043}
+  doorsToOpen: []
   isFinalEddie: 0
   finalSceneName: 
-  roomDoorController: {fileID: 0}
+  roomDoorController: {fileID: 1789336278}
 --- !u!70 &205314129
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -1913,7 +1962,6 @@ GameObject:
   m_Component:
   - component: {fileID: 232958715}
   - component: {fileID: 232958714}
-  - component: {fileID: 232958713}
   m_Layer: 0
   m_Name: SpawnRoom
   m_TagString: Untagged
@@ -1921,23 +1969,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &232958713
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 232958712}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e00b8595fc07be4ba2dd49512626642, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  doors:
-  - {fileID: 0}
-  - {fileID: 0}
-  requireNPC: 1
-  requireRoomClear: 1
 --- !u!61 &232958714
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2610,6 +2641,57 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!1 &388979749
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 388979751}
+  - component: {fileID: 388979750}
+  m_Layer: 0
+  m_Name: RoomDoorController_LanternPuzzleRoom
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &388979750
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 388979749}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e00b8595fc07be4ba2dd49512626642, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  doors:
+  - {fileID: 1123919644}
+  - {fileID: 820353036}
+  requireNPC: 1
+  requireRoomClear: 0
+  requireLevelCompleted: 1
+  levelCompleted: 0
+--- !u!4 &388979751
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 388979749}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -365.6, y: 19.934042, z: -0.11315964}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &391123048
 GameObject:
   m_ObjectHideFlags: 0
@@ -3139,7 +3221,6 @@ GameObject:
   - component: {fileID: 458583746}
   - component: {fileID: 458583745}
   - component: {fileID: 458583744}
-  - component: {fileID: 458583747}
   m_Layer: 0
   m_Name: LanternPuzzleRoom
   m_TagString: Untagged
@@ -3159,7 +3240,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18a363d9be72b0448959def8fa1923af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  doorController: {fileID: 0}
+  doorController: {fileID: 388979750}
   doors: []
   requireEddieToOpenDoors: 1
   lanternPrefab: {fileID: 632408495}
@@ -3235,23 +3316,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &458583747
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 458583743}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e00b8595fc07be4ba2dd49512626642, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  doors:
-  - {fileID: 1123919644}
-  - {fileID: 820353036}
-  requireNPC: 1
-  requireRoomClear: 1
 --- !u!1 &474318980 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1957363196108440312, guid: 6666e5ea8bdd0ef4cb7e1a46f029c32b, type: 3}
@@ -3366,12 +3430,10 @@ MonoBehaviour:
   - "Te ayudar\xE9\na atravesar\ncada\nhabitaci\xF3n"
   - "En esta hay drones\nSolo deberas \nescapar de ellos"
   interactKey: 101
-  doorsToOpen:
-  - {fileID: 1818554656}
-  - {fileID: 1531546145}
+  doorsToOpen: []
   isFinalEddie: 0
   finalSceneName: 
-  roomDoorController: {fileID: 0}
+  roomDoorController: {fileID: 1853451012}
 --- !u!70 &479284151
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -3990,6 +4052,57 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &517946615
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 517946617}
+  - component: {fileID: 517946616}
+  m_Layer: 0
+  m_Name: RoomDoorController_FinalRoom
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &517946616
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 517946615}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e00b8595fc07be4ba2dd49512626642, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  doors:
+  - {fileID: 1869083567}
+  - {fileID: 1905531664}
+  requireNPC: 1
+  requireRoomClear: 1
+  requireLevelCompleted: 0
+  levelCompleted: 0
+--- !u!4 &517946617
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 517946615}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -416.92, y: -7.02, z: 0.07620736}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -4122,7 +4235,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -409.5, y: -5.247281, z: -10}
+  m_LocalPosition: {x: -411.3, y: -4.1472816, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4323,8 +4436,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 89.5, y: -173.9}
-  m_SizeDelta: {x: 749.0923, y: 51.9579}
+  m_AnchoredPosition: {x: 5.600006, y: -8.400002}
+  m_SizeDelta: {x: 495.5856, y: 45.8494}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &587436054
 MonoBehaviour:
@@ -4584,12 +4697,10 @@ MonoBehaviour:
 
     Tengas memoria'
   interactKey: 101
-  doorsToOpen:
-  - {fileID: 1123919644}
-  - {fileID: 820353036}
+  doorsToOpen: []
   isFinalEddie: 0
   finalSceneName: 
-  roomDoorController: {fileID: 0}
+  roomDoorController: {fileID: 388979750}
 --- !u!70 &618703037
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -4931,7 +5042,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 19.200012, y: 5.399994}
+  m_AnchoredPosition: {x: 17.799988, y: 3.164795}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &643723411
@@ -26362,7 +26473,7 @@ Transform:
   m_GameObject: {fileID: 1028738301}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -413.436, y: 3.618339, z: 0.06621727}
+  m_LocalPosition: {x: -475.598, y: 45.600002, z: 0.06621727}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -26667,7 +26778,7 @@ Transform:
   m_GameObject: {fileID: 1038632665}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -412.43802, y: 3.618339, z: 0.06621727}
+  m_LocalPosition: {x: -474.6, y: 45.6, z: 0.06621727}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -27189,7 +27300,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -142.7, y: -86.2}
+  m_AnchoredPosition: {x: -138.1, y: -89.7}
   m_SizeDelta: {x: 69.3816, y: 69.3816}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1201160203
@@ -27499,12 +27610,10 @@ MonoBehaviour:
 '
   - "Te espero en \nla siguiente\nsala\n"
   interactKey: 101
-  doorsToOpen:
-  - {fileID: 1869083567}
-  - {fileID: 1905531664}
+  doorsToOpen: []
   isFinalEddie: 0
   finalSceneName: 
-  roomDoorController: {fileID: 0}
+  roomDoorController: {fileID: 517946616}
 --- !u!70 &1269781686
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -27725,12 +27834,10 @@ MonoBehaviour:
   - "En la siguiente \nhay totems\nactivalos con 'E'"
   - "Debes ser r\xE1pido"
   interactKey: 101
-  doorsToOpen:
-  - {fileID: 447513798}
-  - {fileID: 7914238}
+  doorsToOpen: []
   isFinalEddie: 0
   finalSceneName: 
-  roomDoorController: {fileID: 0}
+  roomDoorController: {fileID: 126139857}
 --- !u!70 &1280427316
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -29679,7 +29786,7 @@ Transform:
   m_GameObject: {fileID: 1372428499}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -409.5, y: -5.9, z: 0}
+  m_LocalPosition: {x: -411.3, y: -4.8, z: 0}
   m_LocalScale: {x: 1.4913509, y: 1.4913509, z: 1.4913509}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -30386,6 +30493,57 @@ RectTransform:
   m_AnchoredPosition: {x: 55, y: -20}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &1521212991
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1521212993}
+  - component: {fileID: 1521212992}
+  m_Layer: 0
+  m_Name: RoomDoorController_MusicalSequenceRoom
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1521212992
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1521212991}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e00b8595fc07be4ba2dd49512626642, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  doors:
+  - {fileID: 272514215}
+  - {fileID: 822001569}
+  requireNPC: 1
+  requireRoomClear: 1
+  requireLevelCompleted: 1
+  levelCompleted: 0
+--- !u!4 &1521212993
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1521212991}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -370.61, y: 39.079872, z: 0.008618593}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1528286771
 GameObject:
   m_ObjectHideFlags: 0
@@ -30888,7 +31046,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1660172397}
   - component: {fileID: 1660172396}
-  - component: {fileID: 1660172395}
   m_Layer: 0
   m_Name: LavaRoom
   m_TagString: Untagged
@@ -30896,23 +31053,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1660172395
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1660172394}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e00b8595fc07be4ba2dd49512626642, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  doors:
-  - {fileID: 1988956456}
-  - {fileID: 1392539043}
-  requireNPC: 1
-  requireRoomClear: 0
 --- !u!61 &1660172396
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -31097,7 +31237,6 @@ GameObject:
   - component: {fileID: 1728159157}
   - component: {fileID: 1728159156}
   - component: {fileID: 1728159158}
-  - component: {fileID: 1728159159}
   m_Layer: 0
   m_Name: Room_X
   m_TagString: Untagged
@@ -31178,7 +31317,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b0c03e873954cf49be4fa141cafd432, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  doorController: {fileID: 1728159159}
+  doorController: {fileID: 126139857}
   spawnPoints: []
   dronePrefab: {fileID: 474318980}
   initialCount: 3
@@ -31191,23 +31330,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   maxAttemptsPerSpawn: 25
---- !u!114 &1728159159
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1728159154}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e00b8595fc07be4ba2dd49512626642, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  doors:
-  - {fileID: 447513798}
-  - {fileID: 7914238}
-  requireNPC: 1
-  requireRoomClear: 0
 --- !u!1 &1735030769
 GameObject:
   m_ObjectHideFlags: 0
@@ -31443,7 +31565,6 @@ GameObject:
   - component: {fileID: 1748645301}
   - component: {fileID: 1748645300}
   - component: {fileID: 1748645299}
-  - component: {fileID: 1748645302}
   m_Layer: 0
   m_Name: MusicPuzzleRoom
   m_TagString: Untagged
@@ -31463,7 +31584,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23a036af6e89f01419543ffa6a1ddeed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  doorController: {fileID: 0}
+  doorController: {fileID: 1521212992}
   doors: []
   sequencePads:
   - {fileID: 2141778928}
@@ -31552,23 +31673,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1748645302
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1748645298}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e00b8595fc07be4ba2dd49512626642, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  doors:
-  - {fileID: 272514215}
-  - {fileID: 822001569}
-  requireNPC: 1
-  requireRoomClear: 1
 --- !u!1 &1767002886
 GameObject:
   m_ObjectHideFlags: 0
@@ -31994,6 +32098,57 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &1789336277
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1789336279}
+  - component: {fileID: 1789336278}
+  m_Layer: 0
+  m_Name: RoomDoorController_LavaRoom
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1789336278
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1789336277}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e00b8595fc07be4ba2dd49512626642, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  doors:
+  - {fileID: 1988956456}
+  - {fileID: 1392539043}
+  requireNPC: 1
+  requireRoomClear: 0
+  requireLevelCompleted: 0
+  levelCompleted: 0
+--- !u!4 &1789336279
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1789336277}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -379.8, y: -10.1, z: 0.07620736}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1801186050
 GameObject:
   m_ObjectHideFlags: 0
@@ -32272,12 +32427,10 @@ MonoBehaviour:
 
     con los pinchos'
   interactKey: 101
-  doorsToOpen:
-  - {fileID: 272514215}
-  - {fileID: 822001569}
+  doorsToOpen: []
   isFinalEddie: 0
   finalSceneName: 
-  roomDoorController: {fileID: 0}
+  roomDoorController: {fileID: 1521212992}
 --- !u!70 &1810867151
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -32566,6 +32719,57 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!1 &1853451011
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1853451013}
+  - component: {fileID: 1853451012}
+  m_Layer: 0
+  m_Name: RoomDoorController_SpawnRoom
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1853451012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1853451011}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e00b8595fc07be4ba2dd49512626642, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  doors:
+  - {fileID: 1818554656}
+  - {fileID: 1531546145}
+  requireNPC: 1
+  requireRoomClear: 0
+  requireLevelCompleted: 0
+  levelCompleted: 0
+--- !u!4 &1853451013
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1853451011}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -416.92, y: -7.02, z: 0.07620736}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1869083565
 GameObject:
   m_ObjectHideFlags: 0
@@ -32975,7 +33179,7 @@ Transform:
   m_GameObject: {fileID: 1918708925}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -409.5, y: -5.247281, z: -10}
+  m_LocalPosition: {x: -411.3, y: -4.1472816, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -39513,7 +39717,6 @@ GameObject:
   - component: {fileID: 2011702240}
   - component: {fileID: 2011702239}
   - component: {fileID: 2011702238}
-  - component: {fileID: 2011702241}
   m_Layer: 0
   m_Name: FinalRoom
   m_TagString: Untagged
@@ -39533,7 +39736,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b0c03e873954cf49be4fa141cafd432, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  doorController: {fileID: 2011702241}
+  doorController: {fileID: 517946616}
   spawnPoints: []
   dronePrefab: {fileID: 1639025661}
   initialCount: 2
@@ -39607,23 +39810,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2011702241
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2011702237}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e00b8595fc07be4ba2dd49512626642, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  doors:
-  - {fileID: 1869083567}
-  - {fileID: 1905531664}
-  requireNPC: 1
-  requireRoomClear: 1
 --- !u!1 &2021643227
 GameObject:
   m_ObjectHideFlags: 0
@@ -41028,9 +41214,13 @@ SceneRoots:
   - {fileID: 1740740047}
   - {fileID: 2072559519056572272}
   - {fileID: 1589415234}
+  - {fileID: 126139858}
   - {fileID: 1728159157}
+  - {fileID: 1789336279}
   - {fileID: 1660172397}
+  - {fileID: 1853451013}
   - {fileID: 232958715}
+  - {fileID: 517946617}
   - {fileID: 2011702240}
   - {fileID: 180539434}
   - {fileID: 1719936293}
@@ -41044,7 +41234,9 @@ SceneRoots:
   - {fileID: 11341696}
   - {fileID: 995744641}
   - {fileID: 1492469692569370533}
+  - {fileID: 388979751}
   - {fileID: 458583746}
+  - {fileID: 1521212993}
   - {fileID: 1748645301}
   - {fileID: 2050148069}
   - {fileID: 1608946649}

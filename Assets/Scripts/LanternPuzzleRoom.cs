@@ -173,6 +173,10 @@ public class LanternPuzzleRoom : MonoBehaviour
         puzzleSolved = true;
         roomCleared = true;
 
+        // ← AGREGADO: informar al RoomDoorController que ESTE nivel quedó completado
+        if (doorController != null)
+            doorController.levelCompleted = true;
+
         if (puzzleRoutine != null)
             StopCoroutine(puzzleRoutine);
 

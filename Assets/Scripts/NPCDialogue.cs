@@ -67,6 +67,11 @@ public class NPCDialogue : MonoBehaviour
         dialogueRunning = false;
         HasTalked = true;
 
+        // NEW ------------------------
+        if (roomDoorController != null)
+            OnDialogueFinished();
+        // ----------------------------
+
         // Avisar global que Eddie habló
         if (!HasTalkedToEddie)
         {
@@ -81,13 +86,11 @@ public class NPCDialogue : MonoBehaviour
                 d.Open();
         }
 
-        // Eddie final: cargar escena elegida (si corresponde)
+        // Eddie final
         if (isFinalEddie)
         {
             string sceneToLoad = string.IsNullOrEmpty(finalSceneName) ? "continuara" : finalSceneName;
 
-            // Asegurarse que la escena esté en Build Settings (o fallará)
-            // Podés verificar en editor antes de build.
             try
             {
                 SceneManager.LoadScene(sceneToLoad);
@@ -102,6 +105,7 @@ public class NPCDialogue : MonoBehaviour
         if (playerInRange && interactPrompt)
             interactPrompt.SetActive(true);
     }
+
 
     void OnTriggerEnter2D(Collider2D other)
     {

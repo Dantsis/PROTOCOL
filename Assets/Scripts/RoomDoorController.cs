@@ -7,14 +7,20 @@ public class RoomDoorController : MonoBehaviour
     public List<Door> doors = new List<Door>();
 
     [Header("Opciones")]
-    public bool requireNPC = true;        // necesita hablar con Eddie?
-    public bool requireRoomClear = true;  // necesita completar contenido?
+    public bool requireNPC = true;          // ¿Hace falta hablar con Eddie?
+    public bool requireRoomClear = true;    // ¿Hace falta limpiar la sala?
+    public bool requireLevelCompleted = true; // ¿Hace falta que el nivel propio esté completo?
 
+    // Estados locales de esta habitación
     bool npcSpoke = false;
     bool roomCleared = false;
 
+    // NUEVO: este es el “nivel completado” local
+    [HideInInspector]
+    public bool levelCompleted = false;
+
     //---------------------------------------------
-    // LLAMADO DESDE NPC (o desde un handler que conecte el NPC a esta habitación)
+    // LLAMADO DESDE NPC
     //---------------------------------------------
     public void MarkNPCSpoke()
     {
@@ -23,7 +29,7 @@ public class RoomDoorController : MonoBehaviour
     }
 
     //---------------------------------------------
-    // LLAMADO DESDE RoomWaveSpawner (COMBATE)
+    // LLAMADO DESDE RoomWaveSpawner (combate)
     //---------------------------------------------
     public void MarkCombatCleared()
     {
@@ -32,11 +38,21 @@ public class RoomDoorController : MonoBehaviour
     }
 
     //---------------------------------------------
-    // LLAMADO DESDE MusicalSequencePuzzle / LanternPuzzle
+    // LLAMADO DESDE puzzles (opcional)
     //---------------------------------------------
     public void MarkPuzzleCleared()
     {
         roomCleared = true;
+        TryOpenDoors();
+    }
+
+    //---------------------------------------------
+    // LLAMADO DESDE RoomWaveSpawner al terminar TODAS las olas
+    // o desde un evento externo si el nivel se completa por otra razón
+    //---------------------------------------------
+    public void MarkLevelCompleted()
+    {
+        levelCompleted = true;
         TryOpenDoors();
     }
 
@@ -47,6 +63,7 @@ public class RoomDoorController : MonoBehaviour
     {
         if (requireNPC && !npcSpoke) return;
         if (requireRoomClear && !roomCleared) return;
+        if (requireLevelCompleted && !levelCompleted) return;
 
         foreach (var d in doors)
         {
